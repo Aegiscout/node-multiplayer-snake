@@ -5,6 +5,10 @@ node ('Ubuntu-app-agent'){
        checkout scm
     } 
     
+    stage('SAST'){
+        build 'SECURITY-SAST-SNYK'
+    }
+    
     stage('Build-and-Tag') {
     /* This builds the actual image; synonymous to
          * docker build on the command line */
@@ -16,10 +20,17 @@ node ('Ubuntu-app-agent'){
             app.push("latest")
         			} 
          }
+   
+    stage('SECURITY-IMAGE-SCANNER'){
+        build 'SECURITY-DAST-Arachni'
+    }
   
     stage('Pull-image-server') {
-        
          sh "docker-compose down"
          sh "docker-compose up -d"
       }
+    
+     stage('DAST'){
+        build 'SECURITY-DAST-OWASP_ZAP'
+    }
 }
